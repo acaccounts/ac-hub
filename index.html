@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accountancy Toolkit</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <style>
+        .container {
+            margin-top: 20px;
+        }
+        .nav-wrapper {
+            background-color: #2196f3 !important; /* Blue primary color */
+        }
+        .tabs .tab a.active {
+            background-color: #ff9800 !important; /* Orange accent color for active tab */
+            color: white !important;
+        }
+        .tabs .tab a {
+            color: #2196f3; /* Blue for non-active tabs */
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo left"><img src="logo.png" alt="Logo" style="height: 50px; margin-left: 10px;"></a>
+            <a href="#" class="brand-logo center">Accountancy Toolkit</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <ul class="tabs">
+                    <li class="tab col s3"><a href="#home" class="active">Home</a></li>
+                    <li class="tab col s3"><a href="#tax-calculator">Tax Calculator</a></li>
+                    <li class="tab col s3"><a href="#vat-converter">VAT Converter</a></li>
+                    <li class="tab col s3"><a href="#income-summary">Income Summary</a></li>
+                </ul>
+            </div>
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <div id="home" class="section">
+                            <h5>UK Tax Liability Calculator 2023/24</h5>
+                            <form id="tax-form">
+                                <div class="input-field">
+                                    <input type="number" id="employmentIncome" placeholder="0" min="0" required>
+                                    <label for="employmentIncome">Employment Income (£):</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="number" id="selfEmploymentIncome" placeholder="0" min="0">
+                                    <label for="selfEmploymentIncome">Self-Employment Income (£):</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="number" id="dividendIncome" placeholder="0" min="0">
+                                    <label for="dividendIncome">Dividend Income (£):</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="number" id="rentalIncome" placeholder="0" min="0">
+                                    <label for="rentalIncome">Rental Income (£):</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="number" id="interestIncome" placeholder="0" min="0">
+                                    <label for="interestIncome">Interest Income (£):</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="number" id="capitalGains" placeholder="0" min="0">
+                                    <label for="capitalGains">Capital Gains (£):</label>
+                                </div>
+                                <button class="btn waves-effect waves-light" type="button" onclick="calculateTax()">Calculate Tax</button>
+                            </form>
+                            <div id="result" class="section"></div>
+                        </div>
+
+                        <div id="tax-calculator" class="section" style="display: none;">
+                            <h5>Tax Calculator - Coming Soon!</h5>
+                            <p>Placeholder: Use this section to calculate basic income and corporate taxes. This tool will include options for tax deductions and tax slab details.</p>
+                        </div>
+                        <div id="vat-converter" class="section" style="display: none;">
+                            <h5>VAT Converter - Coming Soon!</h5>
+                            <p>Placeholder: Convert VAT inclusive prices to exclusive, and vice versa. This section will help with quick and accurate VAT calculations.</p>
+                        </div>
+                        <div id="income-summary" class="section" style="display: none;">
+                            <h5>Income Summary - Coming Soon!</h5>
+                            <p>Placeholder: Summarize monthly or yearly income reports. This feature will provide an overview of profits, losses, and deductions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('.tabs');
+            M.Tabs.init(elems, {
+                onShow: function(tab) {
+                    showSection(tab.getAttribute('href').substring(1));
+                }
+            });
+        });
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        function formatCurrency(value) {
+            return value.toLocaleString('en-UK', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+        }
+
+        function calculateTax() {
+            let employmentIncome = parseFloat(document.getElementById('employmentIncome').value) || 0;
+            let selfEmploymentIncome = parseFloat(document.getElementById('selfEmploymentIncome').value) || 0;
+            let dividendIncome = parseFloat(document.getElementById('dividendIncome').value) || 0;
+            let rentalIncome = parseFloat(document.getElementById('rentalIncome').value) || 0;
+            let interestIncome = parseFloat(document.getElementById('interestIncome').value) || 0;
+            let capitalGains = parseFloat(document.getElementById('capitalGains').value) || 0;
+
+            let totalIncome = employmentIncome + selfEmploymentIncome + dividendIncome + rentalIncome + interestIncome + capitalGains;
+
+            let personalAllowance = 12570;
+            let basicRateLimit = 50270;
+            let higherRateLimit = 150000;
+            let basicRate = 0.20;
+            let higherRate = 0.40;
+            let additionalRate = 0.45;
+
+            let taxableIncome = totalIncome - personalAllowance;
+            if (taxableIncome < 0) taxableIncome = 0;
+
+            let tax = 0;
+
+            if (taxableIncome <= basicRateLimit - personalAllowance) {
+                tax = taxableIncome * basicRate;
+            } else if (taxableIncome <= higherRateLimit) {
+                tax = (basicRateLimit - personalAllowance) * basicRate + (taxableIncome - (basicRateLimit - personalAllowance)) * higherRate;
+            } else {
+                tax = (basicRateLimit - personalAllowance) * basicRate + (higherRateLimit - basicRateLimit) * higherRate + (taxableIncome - higherRateLimit) * additionalRate;
+            }
+
+            // National Insurance Contributions Calculation
+            let niClass1Threshold = 12570;
+            let niClass1UpperLimit = 50270;
+            let niRateBelowUpper = 0.12;
+            let niRateAboveUpper = 0.02;
+
+            let nationalInsurance = 0;
+
+            if (employmentIncome > niClass1Threshold) {
+                if (employmentIncome <= niClass1UpperLimit) {
+                    nationalInsurance = (employmentIncome - niClass1Threshold) * niRateBelowUpper;
+                } else {
+                    nationalInsurance = (niClass1UpperLimit - niClass1Threshold) * niRateBelowUpper + (employmentIncome - niClass1UpperLimit) * niRateAboveUpper;
+                }
+            }
+
+            // Self-employment National Insurance (Class 4)
+            let niClass4LowerLimit = 12570;
+            let niClass4UpperLimit = 50270;
+            let niClass4RateBelowUpper = 0.09;
+            let niClass4RateAboveUpper = 0.02;
+
+            let selfEmploymentNI = 0;
+
+            if (selfEmploymentIncome > niClass4LowerLimit) {
+                if (selfEmploymentIncome <= niClass4UpperLimit) {
+                    selfEmploymentNI = (selfEmploymentIncome - niClass4LowerLimit) * niClass4RateBelowUpper;
+                } else {
+                    selfEmploymentNI = (niClass4UpperLimit - niClass4LowerLimit) * niClass4RateBelowUpper + (selfEmploymentIncome - niClass4UpperLimit) * niClass4RateAboveUpper;
+                }
+            }
+
+            let totalNationalInsurance = nationalInsurance + selfEmploymentNI;
+
+            document.getElementById('result').innerHTML = `<h6>Total Income: ${formatCurrency(totalIncome)}</h6>
+                                                           <h6>Taxable Income: ${formatCurrency(taxableIncome)}</h6>
+                                                           <h6>Estimated Tax Liability: ${formatCurrency(tax)}</h6>
+                                                           <h6>National Insurance Contributions: ${formatCurrency(totalNationalInsurance)}</h6>
+                                                           <h6>Total Tax and NI Liability: ${formatCurrency(tax + totalNationalInsurance)}</h6>`;
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>
